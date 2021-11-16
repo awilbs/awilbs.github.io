@@ -1,0 +1,251 @@
+<!doctype html>
+<!--
+  Material Design Lite
+  Copyright 2015 Google Inc. All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alex Wilber's Portfolio</title>
+
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="images/android-desktop.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+    <link rel="apple-touch-icon-precomposed" href="images/ios-desktop.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <link rel="shortcut icon" href="images/favicon.png">
+
+    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+    <!--
+    <link rel="canonical" href="http://www.example.com/">
+    -->
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <link rel="stylesheet" href="material.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.blue-cyan.min.css" />
+    <style>
+    #view-source {
+      position: fixed;
+      display: block;
+      right: 0;
+      bottom: 0;
+      margin-right: 40px;
+      margin-bottom: 40px;
+      z-index: 900;
+    }
+    </style>
+  </head>
+  <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+
+      </header>
+      <main class="mdl-layout__content">
+<center><canvas id="disp", width="960" height="640" onMouseDown="mouseDown()" onMouseUp="mouseUp()" onClick="canvasClick()">
+  </canvas></center>
+  <script>
+  //---Here js code is began to display the context point(water and sand) on the screen.
+    var c = document.getElementById("disp");  //Get the display element
+    var ctx = c.getContext("2d");       //Get the rendering context (Here rendering context mean the mousepoint setting on the 2d flat.)
+    var width = c.width;  //The width is x limit position of context point.
+    var height = c.height;  //The width is y limit position of context point.
+
+    var arraySize = (width/10) * (height/10); //The count of the pointers that are able to display on the screen
+    var a = new Array();            //This array saves the value of object along the position(along position clicking mouse).
+    while(arraySize--) a.push(Math.floor(Math.random()*4)); //Format the array.(Set the default-value.random position of the objects: air, water, sand, stone).
+    var pointer = 3;  //The type of point (air, water, sand, stone).
+    var ptrX, ptrY; //This is position(x,y) of point that is posible to display.
+
+    var clicking = false; //This is the flag of the statement clicking mouse.true or false;
+
+    c.addEventListener("mouseover", getMouseXY, false); //The state of mouse position.
+    c.addEventListener("mousedown", mouseDown, false);  //The state of clicking mouse.
+    c.addEventListener("mouseup", mouseUp, false);  //The state of mousebutton1 is up.
+
+    document.onmousemove = getMouseXY;  //The real time of mouse position.
+
+    //---This function is getting the position of real point using position of the Mouse.
+    function getMouseXY(e) {
+      tempX = event.clientX + document.body.scrollLeft;   //Get the Mouse position x;
+      tempY = event.clientY + document.body.scrollTop;  //Get the Mouse position y;
+      if (tempX < 0){tempX = 0;}  //The Mouse position x is greater than x-value of Rect in body Rect
+      if (tempY < 0){tempY = 0;}  //The Mouse position y is greater than y-value of Rect in body Rect  
+      ptrX = tempX; //Get the x-value of Real point(sand and water)
+      ptrY = tempY; //Get the x-value of Real point(sand and water)
+      return true;  //The value clicking statement is seted as true
+    }
+
+    //---To push the value in the array a.
+    function canvasClick(){
+      var x = Math.floor((event.pageX - c.offsetLeft)/10) //The x-position of Game screen.
+      var y = Math.floor((event.pageY - c.offsetTop)/10)  //The y-position of Game screen.
+      a[y*(width/10) + x] = pointer;  //To set the value of object in the array a.
+    } //To devide by 10 means seting on the rect of the GamePlay screen.
+
+    //---This function is processing the MouseDown.
+    //---Here the state of clicking mouse set 'true'.
+    function mouseDown(){
+      clicking = true;
+      setTimeout(drawing, 1);
+    }
+
+    //---This function decides the state of unclicking mouse. 
+    //---The value is false.
+    function mouseUp(){
+      clicking = false;
+    }
+    /*
+      Show them http://keycode.info/
+    */
+    //---The process of the KeyDwon: 49-num2 ... 52-num5, 27-pageup
+    document.onkeydown = function(evt) {
+        if (evt.keyCode >= 49 && evt.keyCode <= 52) {
+            pointer = evt.keyCode - 49; // To decide the kind of the object.
+        } else if (evt.keyCode == 27) {  // If you click the  keyboard'PgUP', format the array a.
+          for(var y = 0; y < (height/10); y++){ 
+          for(var x = 0; x < (width/10); x++){  
+            a[y*(width/10) + x] = 0;
+          }
+        }
+        }
+    };
+    /*
+      http://htmlcolorcodes.com/
+    */
+    //---This function is to display the objects on the screen.
+    function drawScreen(arr){
+      for(var y = 0; y < (height/10); y++){
+        for(var x = 0; x < (width/10); x++){
+          //alert(arr[y*(width/10) + x]);
+          var color = arr[y*(width/10) + x];
+          if(color == 4){
+            ctx.fillStyle = "#FF0000"; //stone : 'red'
+          } else if(color == 3){
+            ctx.fillStyle = "#000000";  //sand : 'black'
+          } else if ( color == 2){
+            ctx.fillStyle = "#ADD8E6";  //water : 'grey blue'
+          } else if ( color == 1){
+            ctx.fillStyle = "#2AFFA2";  //air : 'green'
+          } else {
+            ctx.fillStyle = "#FFFFFF";  //default : 'white'
+          }
+          ctx.fillRect(x*10,y*10,10,10);  //To display the object.
+        }
+      }
+    }
+
+    //---draw the object.
+    //---If the state of clicking mouse is true, continue to draw the object after 10 seconds.
+    function drawing() {
+      if(clicking){
+        //The position of object.
+        var x = Math.floor((ptrX - c.offsetLeft)/10)
+        var y = Math.floor((ptrY - c.offsetTop)/10)
+        a[(y-0)*(width/10) + x] = pointer;  // set the value of the object.
+        setTimeout(drawing, 10); 
+      }
+    }
+
+    //---This function is to draw the new board using the old array a.
+    function reCalcCycle(){
+      var xind = width/10;
+      var yind = height/10;
+      var next = new Array(); //This array is the temp-array To decide the value of the object displaying in Next board.
+      /*
+      Next board and old board is different.(Board meaning is array a and next in code).
+      */
+      for(var y = 0; y < (yind); y++){
+        for(var x = 0; x < (xind); x++){
+          if(y != 0){ // y (Y-position is not zero)
+             if(a[(y-1)*(xind) + x] == 1 && a[(y-0)*(xind) + x] == 0) {
+              //y : vertical and x : horizantal
+              //  If The one object of array a is air and the other object (above one) is default, the array next reverse as the array a.
+              next[y*(xind) + x] = 1;
+              next[(y-1)*(xind) + x] = 0;
+            } else if(a[(y-1)*(xind) + x] == 1 && a[(y-0)*(xind) + x] == 2) {
+
+              //y : vertical and x : horizantal
+              //  If The one object of array a is air and the other object (above one) is water, the array next reverse as the array a.
+              next[y*(xind) + x] = 1;
+              next[(y-1)*(xind) + x] = 2;
+            } else if(a[(y-1)*(xind) + x] == 2 && a[(y-0)*(xind) + x] == 0) {
+
+              //y : vertical and x : horizantal
+              //  If The one object of array a is water and the other object (above one) is default, the array next reverse the array a.
+              next[y*(xind) + x] = 2;
+              next[(y-1)*(xind) + x] = 0;
+            } else {
+              //The extra objects is applied to the array next.
+              next[y*(xind) + x] = a[(y-0)*(xind) + x];
+            }
+          } else { //Y-position is zero.
+            //The value of the array a is pushed in the field of the array next.( the value of Y-position in a is the value of (Y+1) in next).
+            next[y*(xind) + x] = a[(y-0)*(xind) + x];
+          }
+          if(x > 0 && y < height-1){//When the position clicking mouse is out the rect of game screen.
+            //alert("!");
+            var choice = ((Math.floor(Math.random() * 100)) %2 == 0);// choice is the remaining 0~100 divided by 2. so the choice is 1 or 0;
+            //alert(choice); 0 = !choice, 1 = choice
+
+            //(This is same as above the loop. )
+            if(choice && next[(y)*(xind) + x] == 2 && next[(y)*(xind) + x-1] == 0 && a[(y+1)*(xind) + x] != 0){
+              next[(y)*(xind) + x] =0;
+              next[(y)*(xind) + x-1] =2;
+            } else if(!choice && next[(y)*(xind) + x] == 0 && next[(y)*(xind) + x-1] == 2 && a[(y+1)*(xind) + x-1] != 0){
+              next[(y)*(xind) + x] =2;
+              next[(y)*(xind) + x-1] =0;
+            }
+          }
+        }
+      }
+      //To set the value of the object in array a ,using the Next Board.
+      for(var y = 0; y < (yind); y++){
+        for(var x = 0; x < (xind); x++){
+          a[y*(xind) + x] = next[y*(xind) + x];
+        }
+      }
+      drawScreen(a);  // Display the object on the screen.
+      setTimeout(reCalcCycle, 30); //To display the objects after 30 seconds.
+    }
+    reCalcCycle();
+  </script>
+  <h2>controls:</h2>
+    1: air<br>
+    2: sand<br>
+    3: water<br>
+    4: stone<br>
+    esc: clear<br>
+    mouse1: paint material<br>
+         <div class="mdl-layout__header-row">
+        </div>
+        
+      </main>
+    </div>
+    <script src="../../material.min.js"></script>
+  </body>
+</html>
